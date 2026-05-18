@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100 Hooks · Storia</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mint: #D6E8C8;
+    --mint-light: #E8F3DF;
+    --mint-dark: #C2D9B0;
+    --mint-stripe: rgba(180,210,155,0.35);
+    --cream: #FAFAF7;
+    --text: #1A1A18;
+    --text-muted: #7A7A72;
+    --text-light: #A8A89E;
+    --accent-dot: #CC3322;
+    --border: rgba(0,0,0,0.08);
+    --surface: rgba(255,255,255,0.6);
+    --stripe-w: 52px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--mint-light);
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent calc(var(--stripe-w) - 1px),
+      var(--mint-stripe) calc(var(--stripe-w) - 1px),
+      var(--mint-stripe) var(--stripe-w)
+    );
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px 60px;
+    position: relative;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -0.5px;
+    position: fixed;
+    top: 32px;
+    left: 40px;
+    z-index: 200;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--accent-dot);
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(56px, 9vw, 120px);
+    font-weight: 800;
+    font-style: italic;
+    line-height: 0.92;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin-bottom: 32px;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: var(--accent-dot);
+  }
+
+  .hero-desc {
+    font-family: 'Lora', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: var(--text-muted);
+    max-width: 480px;
+    line-height: 1.75;
+    margin-bottom: 56px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 56px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-light);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(214, 232, 200, 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-right: 6px;
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    padding: 7px 16px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.22s ease;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover {
+    background: rgba(255,255,255,0.5);
+    color: var(--text);
+    border-color: rgba(0,0,0,0.15);
+  }
+
+  .filter-btn.active {
+    background: var(--text);
+    color: var(--mint-light);
+    border-color: var(--text);
+  }
+
+  .search-wrap {
+    margin-left: auto;
+    position: relative;
+  }
+
+  .search-input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px 8px 36px;
+    border-radius: 40px;
+    outline: none;
+    width: 210px;
+    transition: all 0.2s;
+  }
+
+  .search-input::placeholder { color: var(--text-light); }
+  .search-input:focus {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(0,0,0,0.2);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  /* ── GRID ── */
+  .grid-wrap {
+    padding: 48px 40px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .hook-card {
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 4px;
+    padding: 28px 28px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: all 0.25s ease;
+    cursor: default;
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hook-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: transparent;
+    transition: background 0.25s;
+  }
+
+  .hook-card:hover {
+    background: rgba(255,255,255,0.82);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  }
+
+  .hook-card:hover::before { background: var(--mint-dark); }
+  .hook-card.copied::before { background: var(--accent-dot); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hook-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-light);
+  }
+
+  .hook-tag {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 40px;
+    border: 1px solid;
+  }
+
+  .tag-curiosidad { color: #5A7A3A; border-color: rgba(90,122,58,0.3); background: rgba(90,122,58,0.08); }
+  .tag-controversia { color: #B03020; border-color: rgba(176,48,32,0.25); background: rgba(176,48,32,0.07); }
+  .tag-historia { color: #4A5A9A; border-color: rgba(74,90,154,0.25); background: rgba(74,90,154,0.07); }
+  .tag-dato { color: #2A7A5A; border-color: rgba(42,122,90,0.25); background: rgba(42,122,90,0.07); }
+  .tag-miedo { color: #8A4A1A; border-color: rgba(138,74,26,0.25); background: rgba(138,74,26,0.07); }
+  .tag-identidad { color: #6A3A8A; border-color: rgba(106,58,138,0.25); background: rgba(106,58,138,0.07); }
+  .tag-promesa { color: #1A6A8A; border-color: rgba(26,106,138,0.25); background: rgba(26,106,138,0.07); }
+  .tag-error { color: #9A3A3A; border-color: rgba(154,58,58,0.25); background: rgba(154,58,58,0.07); }
+
+  .hook-text {
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .hook-note {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .copy-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    padding: 5px 14px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  .copy-btn.done {
+    border-color: var(--accent-dot);
+    color: var(--accent-dot);
+  }
+
+  /* ── RESULTS BAR ── */
+  .results-bar {
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .results-bar span { color: var(--text-muted); font-weight: 500; }
+
+  .no-results {
+    display: none;
+    text-align: center;
+    padding: 80px 20px;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text-light);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+    background: rgba(255,255,255,0.3);
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .footer-logo span { color: var(--accent-dot); }
+
+  .footer-tagline {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-light);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .logo { top: 20px; left: 20px; }
+    .hero { padding: 80px 24px 60px; }
+    .controls { padding: 14px 20px; }
+    .grid-wrap { padding: 32px 16px 60px; }
+    .grid { grid-template-columns: 1fr; gap: 12px; }
+    .hero-stats { gap: 32px; }
+    .search-wrap { margin-left: 0; width: 100%; }
+    .search-input { width: 100%; }
+    .hero-title { letter-spacing: -1px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">S<span>.</span></div>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Guía de Contenidos · Storia</p>
+  <h1 class="hero-title">
+    100 hooks<br>
+    que paran<br>
+    el <em>scroll.</em>
+  </h1>
+  <p class="hero-desc">Guarda este recurso, para que te salve cuando lo necesites.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">100</span>
+      <span class="stat-label">Hooks</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">8</span>
+      <span class="stat-label">Categorías</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Nichos</span>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <span>Explorar</span>
+    <span>↓</span>
+  </div>
+</section>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <span class="filter-label">Ver</span>
+  <button class="filter-btn active" data-cat="all">Todos</button>
+  <button class="filter-btn" data-cat="curiosidad">Curiosidad</button>
+  <button class="filter-btn" data-cat="controversia">Controversia</button>
+  <button class="filter-btn" data-cat="historia">Historia</button>
+  <button class="filter-btn" data-cat="dato">Dato Shock</button>
+  <button class="filter-btn" data-cat="miedo">Urgencia</button>
+  <button class="filter-btn" data-cat="identidad">Identidad</button>
+  <button class="filter-btn" data-cat="promesa">Promesa</button>
+  <button class="filter-btn" data-cat="error">Error Común</button>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" placeholder="Buscar..." id="searchInput">
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div class="no-results" id="noResults">Ningún hook coincide con tu búsqueda.</div>
+</div>
+
+<div class="results-bar">Mostrando <span id="countDisplay">100</span> hooks</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">S<span>.</span></div>
+  <p class="footer-tagline">Contenido que no se puede ignorar.</p>
+</footer>
+
+<script>
+const hooks = [
+  { id:1, cat:"curiosidad", text:"Nadie te va a enseñar esto en la escuela, y yo lo aprendí de la peor manera.", note:"Activa la curiosidad + historia personal. Funciona en finanzas, salud, relaciones, negocios." },
+  { id:2, cat:"curiosidad", text:"Esto que ves aquí me tomó 3 años entender… y lo vas a entender en 60 segundos.", note:"Contraste de tiempo. Hace sentir al espectador que está ganando algo valioso rápido." },
+  { id:3, cat:"curiosidad", text:"Te voy a mostrar el proceso que nadie muestra porque les da miedo que lo sepas.", note:"Activa la narrativa de 'secreto revelado'. Muy potente en marketing, cocina, fitness." },
+  { id:4, cat:"curiosidad", text:"¿Qué pasaría si todo lo que te dijeron sobre [TEMA] estuviera mal?", note:"Abre un loop mental que el cerebro necesita cerrar. No puede irse sin escuchar la respuesta." },
+  { id:5, cat:"curiosidad", text:"Esto se ve raro al principio, pero quédate porque el final lo cambia todo.", note:"Promesa de recompensa al final. Retención garantizada si el contenido cumple." },
+  { id:6, cat:"curiosidad", text:"Hace 6 meses no sabía que esto existía. Hoy es lo que más uso.", note:"Naturalidad + descubrimiento. Genera empatía inmediata." },
+  { id:7, cat:"curiosidad", text:"La pregunta que nadie hace sobre [TEMA] pero todos deberían.", note:"Posiciona al creador como el que 'sabe más'. Ideal para educación y nicho experto." },
+  { id:8, cat:"curiosidad", text:"Esto solo lo saben los que llevan años en [ÁREA]. Hoy te lo cuento.", note:"Exclusividad percibida. El espectador siente que accede a información de élite." },
+  { id:9, cat:"curiosidad", text:"Mira lo que pasa cuando combinas [COSA A] con [COSA B]. Spoiler: no es lo que esperas.", note:"El 'spoiler' contradictorio es un gancho poderoso. Funciona en cocina, experimentos, negocios." },
+  { id:10, cat:"curiosidad", text:"Hay algo que llevo tiempo queriendo decirles y hoy se los cuento.", note:"Humaniza al creador. Genera expectativa con tono íntimo." },
+  { id:11, cat:"curiosidad", text:"El truco que los expertos no mencionan en sus tutoriales sobre [TEMA].", note:"Ataca el 'gap' entre el conocimiento público y el real. Muy efectivo." },
+  { id:12, cat:"curiosidad", text:"Pasé [TIEMPO] probando esto y los resultados me sorprendieron incluso a mí.", note:"Credibilidad por experiencia propia + sorpresa del experto." },
+  { id:13, cat:"curiosidad", text:"¿Has notado que cuando haces [ACCIÓN] siempre pasa [COSA]? Hay una razón.", note:"Valida una experiencia del espectador y le da respuesta. Muy adictivo." },
+  { id:14, cat:"curiosidad", text:"No busques esto en Google porque las respuestas que vas a encontrar están incompletas.", note:"Genera urgencia para ver TU contenido en lugar de irse a otra fuente." },
+  { id:15, cat:"curiosidad", text:"Esto que parece complicado se resume en una sola cosa. Una sola.", note:"Simplificación poderosa. El cerebro ama los atajos mentales." },
+  { id:16, cat:"controversia", text:"Opinión impopular: [AFIRMACIÓN QUE DESAFÍA LA NORMA DE TU NICHO].", note:"Clásico que no muere. Si la afirmación es genuina y bien argumentada, genera debate orgánico." },
+  { id:17, cat:"controversia", text:"Me van a odiar por decir esto, pero alguien tiene que hacerlo.", note:"Crea anticipación al drama. Usa solo si de verdad tienes algo valioso que decir." },
+  { id:18, cat:"controversia", text:"Todo el mundo habla de [MÉTODO POPULAR] y yo fui el que lo usó por 6 meses. Aquí mi veredicto real.", note:"Rompe con el consenso desde la experiencia propia. Muy creíble y compartible." },
+  { id:19, cat:"controversia", text:"[GURÚ O FIGURA DE TU NICHO] tiene razón en casi todo... menos en esto.", note:"Usa la autoridad ajena para construir la tuya. Con respeto, no con ataque." },
+  { id:20, cat:"controversia", text:"Si llevas tiempo en [NICHO] y nunca cuestionaste [PRÁCTICA COMÚN], tenemos que hablar.", note:"Apela directamente a la identidad del espectador. Casi imposible de ignorar si eres del nicho." },
+  { id:21, cat:"controversia", text:"La industria de [TEMA] no quiere que sepas esto.", note:"Narrativa de 'sistema vs tú'. Usa con responsabilidad y evidencia real." },
+  { id:22, cat:"controversia", text:"Deja de hacer [COSA POPULAR]. Te explico por qué está mal desde el principio.", note:"Directo y confrontacional. Alto riesgo, alto impacto. Solo si tienes el argumento sólido." },
+  { id:23, cat:"controversia", text:"Cambié de opinión sobre [TEMA] y no me da vergüenza decirlo.", note:"Vulnerabilidad intelectual. Genera respeto y mucha conversación en comentarios." },
+  { id:24, cat:"controversia", text:"Lo que te venden como 'la solución' para [PROBLEMA] en realidad tiene un problema enorme.", note:"Rompe una ilusión de mercado. Muy efectivo en salud, finanzas, fitness, tecnología." },
+  { id:25, cat:"controversia", text:"Estuve de acuerdo con todos hasta que lo probé yo mismo.", note:"Experiencia personal que desafía el consenso. Muy humano y creíble." },
+  { id:26, cat:"controversia", text:"Aquí está la parte de [TEMA] que nadie quiere admitir.", note:"Tabú o verdad incómoda revelada. Asegúrate de que sea real y no clickbait vacío." },
+  { id:27, cat:"controversia", text:"¿Por qué todo el mundo hace [COSA] si hay una forma mucho más eficiente?", note:"Invita a cuestionarse sin atacar directamente. Abre diálogo." },
+  { id:28, cat:"historia", text:"El día que [EVENTO DIFÍCIL] fue el que me enseñó más sobre [TEMA].", note:"Narrativa de crisis → aprendizaje. Patrón universal y muy compartible." },
+  { id:29, cat:"historia", text:"Hace [TIEMPO] era el tipo de persona que [ESTADO ANTERIOR]. Hoy soy esto.", note:"Arco de transformación. Funcionan en casi todos los nichos." },
+  { id:30, cat:"historia", text:"Cometí el error más caro de mi vida en [ÁREA]. Les cuento para que no lo repitan.", note:"Vulnerabilidad real + utilidad = contenido que conecta y se guarda." },
+  { id:31, cat:"historia", text:"Nadie me creyó cuando dije que iba a [LOGRO]. Permíteme mostrarte cómo pasó.", note:"Underdog story. Una de las más poderosas narrativas humanas." },
+  { id:32, cat:"historia", text:"La conversación que tuve con [PERSONA/ROL] cambió completamente cómo veo [TEMA].", note:"Diálogo revelador. Humaniza y da perspectiva externa al espectador." },
+  { id:33, cat:"historia", text:"Durante [TIEMPO] hice todo lo que se supone que debía hacer. No funcionó. Esto sí.", note:"Fracaso del método convencional + solución alternativa. Alta credibilidad." },
+  { id:34, cat:"historia", text:"Hubo un momento exacto en que todo cambió. Se los voy a mostrar.", note:"Momento de inflexión. Crea expectativa y mantiene atención." },
+  { id:35, cat:"historia", text:"La peor decisión que tomé en [ÁREA] también fue la que me llevó a donde estoy.", note:"Paradoja narrativa. Intrigante y muy compartible." },
+  { id:36, cat:"historia", text:"Lo que nadie te dice sobre [LOGRAR ALGO DESEABLE] cuando estás empezando.", note:"Habla directamente al que está en el inicio del camino. Alta empatía." },
+  { id:37, cat:"historia", text:"Me tardé [TIEMPO] en aprender algo que les puedo enseñar en [TIEMPO CORTO].", note:"El contraste temporal activa el deseo de ver el contenido." },
+  { id:38, cat:"historia", text:"El día que fallé en público fue el mejor de mi vida. Aquí por qué.", note:"Reencuadre de fracaso. Sorpresivo y poderoso." },
+  { id:39, cat:"historia", text:"Esto fue lo que nadie me dijo cuando empecé en [NICHO].", note:"Apela a todos los que están comenzando. Muy compartible entre comunidades." },
+  { id:40, cat:"historia", text:"No lo cuento mucho, pero esto fue lo que realmente me cambió en [ÁREA].", note:"Tono íntimo. Hace sentir al espectador como si recibiera información especial." },
+  { id:41, cat:"dato", text:"El [%] de personas que hacen [COSA] no saben que están [CONSECUENCIA].", note:"Estadística + consecuencia. El espectador quiere saber si él está en ese porcentaje." },
+  { id:42, cat:"dato", text:"En [PAÍS/MUNDO], [CIFRA SORPRENDENTE] sobre [TEMA]. Nadie habla de esto.", note:"Dato con contexto geográfico. Activa la comparación y el asombro." },
+  { id:43, cat:"dato", text:"Esto cuesta [PRECIO BAJO] y hace lo mismo que lo que cobran [PRECIO ALTO].", note:"Comparativa de valor. Efectivo en nichos de consumo, tecnología, bienestar." },
+  { id:44, cat:"dato", text:"[COSA COTIDIANA] tiene [DATO INESPERADO]. Lo comprobé yo mismo.", note:"Dato de lo familiar. Genera el efecto 'no lo sabía y lo usaba todo el tiempo'." },
+  { id:45, cat:"dato", text:"Cada vez que haces [HÁBITO COMÚN] sin saber [DATO], estás [CONSECUENCIA].", note:"Activa la autoevaluación inmediata del espectador." },
+  { id:46, cat:"dato", text:"Esto que parece normal en [NICHO] en realidad es [REVELACIÓN SORPRENDENTE].", note:"Rompe la percepción de lo cotidiano. Muy adictivo." },
+  { id:47, cat:"dato", text:"[NÚMERO] estudios dicen lo mismo sobre [TEMA] y aún así nadie lo aplica.", note:"Autoridad científica + brecha de acción. Genera curiosidad y frustración productiva." },
+  { id:48, cat:"dato", text:"El mayor secreto de [PERSONAS EXITOSAS EN NICHO] no es lo que crees.", note:"Desafía el mito popular. Muy efectivo en productividad, finanzas, fitness." },
+  { id:49, cat:"dato", text:"Gastamos [CANTIDAD ENORME] al año en [COSA] que no necesitamos. Aquí la prueba.", note:"Dato de desperdicio. Activa la urgencia de cambio." },
+  { id:50, cat:"dato", text:"Existe una diferencia enorme entre [COSA A] y [COSA B] y casi nadie la conoce.", note:"Distinción ignorada. El espectador quiere saber si él la conoce." },
+  { id:51, cat:"dato", text:"[PROFESIÓN O ROL] llevan años haciendo [PRÁCTICA] por una razón muy específica que jamás te contaron.", note:"Conocimiento de insider. Muy atractivo para audiencias curiosas." },
+  { id:52, cat:"dato", text:"Lo que ocurre en tu cuerpo/mente/negocio cuando [HACES ALGO] durante 30 días consecutivos.", note:"Experimento temporal. Genera curiosidad sobre el proceso completo." },
+  { id:53, cat:"dato", text:"Este número lo cambia todo cuando hablamos de [TEMA]: [DATO IMPACTANTE].", note:"El dato al final crea un loop de anticipación." },
+  { id:54, cat:"miedo", text:"Si estás haciendo [COSA] sin saber [DATO], tienes que ver esto ahora.", note:"Urgencia directa. Funciona cuando el riesgo es real, no inventado." },
+  { id:55, cat:"miedo", text:"Lo que no sabes sobre [TEMA] te puede estar costando [TIEMPO/DINERO/SALUD] sin darte cuenta.", note:"Pérdida silenciosa. Uno de los ganchos más poderosos del marketing." },
+  { id:56, cat:"miedo", text:"Cada día que esperas para hacer [ACCIÓN] es un día que [CONSECUENCIA NEGATIVA].", note:"Costo de la inacción. Ideal para nichos de emprendimiento, salud y finanzas." },
+  { id:57, cat:"miedo", text:"¿Cuánto tiempo más vas a seguir haciendo [COSA INEFICIENTE] esperando resultados distintos?", note:"Confronta el statu quo del espectador. Genera incomodidad positiva." },
+  { id:58, cat:"miedo", text:"La razón por la que [RESULTADO DESEADO] no te ha llegado no es lo que crees.", note:"Reencuadra la causa del problema. Muy efectivo si la respuesta es genuinamente diferente." },
+  { id:59, cat:"miedo", text:"Esto está pasando ahora mismo en [NICHO/MERCADO] y si no lo ves, te va a afectar.", note:"Urgencia de actualidad. Muy poderoso en nichos de negocios y tendencias." },
+  { id:60, cat:"miedo", text:"El error más común en [NICHO] que destruye todo el progreso que llevas acumulado.", note:"Amenaza al esfuerzo ya invertido. Activa el miedo a perder lo ganado." },
+  { id:61, cat:"miedo", text:"Hay una ventana de tiempo muy corta para aprovechar [OPORTUNIDAD] en [NICHO].", note:"Escasez temporal. Usa solo cuando sea real." },
+  { id:62, cat:"miedo", text:"Lo que no te cuentan sobre [TENDENCIA POPULAR] que puede salirte muy caro.", note:"Alerta de riesgo oculto. Alta retención si el contenido cumple la promesa." },
+  { id:63, cat:"miedo", text:"Llevas [TIEMPO] haciendo [COSA] y puede que lo estés haciendo al revés.", note:"Validación de hábito + posible error. Genera autoevaluación inmediata." },
+  { id:64, cat:"miedo", text:"Si en [PLAZO] no cambias [HÁBITO/PRÁCTICA], esto es lo que va a pasar.", note:"Proyección de consecuencia. Poderoso en salud, finanzas y desarrollo personal." },
+  { id:65, cat:"identidad", text:"Esto es para los que llevan tiempo en [NICHO] y sienten que algo no está funcionando.", note:"Habla a una etapa específica del camino. Muy preciso y efectivo." },
+  { id:66, cat:"identidad", text:"Si eres de los que [CARACTERÍSTICA DEL NICHO], este video es para ti.", note:"Segmentación directa. Hace sentir al espectador visto y elegido." },
+  { id:67, cat:"identidad", text:"¿Cuántas veces intentaste [OBJETIVO] sin lograrlo? Hay una razón concreta.", note:"Valida la frustración acumulada y ofrece solución." },
+  { id:68, cat:"identidad", text:"Sé exactamente cómo te sientes cuando [SITUACIÓN ESPECÍFICA DEL NICHO]. Estuve ahí.", note:"Empatía profunda. Crea conexión instantánea." },
+  { id:69, cat:"identidad", text:"Esto lo entienden solo los que de verdad han pasado por [EXPERIENCIA DEL NICHO].", note:"Pertenencia exclusiva. Muy poderoso en comunidades nicho." },
+  { id:70, cat:"identidad", text:"Para los que creen que ya probaron todo en [ÁREA] y nada funciona.", note:"Habla al agotamiento. Muy relevante en nichos de bienestar, negocios y productividad." },
+  { id:71, cat:"identidad", text:"Si eres el tipo de persona que [RASGO DE IDENTIDAD POSITIVO], vas a entender esto al instante.", note:"Apela al autoconcepto positivo. El espectador quiere confirmar que pertenece." },
+  { id:72, cat:"identidad", text:"No todos están listos para escuchar esto sobre [TEMA]. Si tú sí, sigue viendo.", note:"Reto de identidad. Muy adictivo por el mecanismo de 'yo soy de los que pueden'." },
+  { id:73, cat:"identidad", text:"Esto es lo que separa a los que avanzan en [NICHO] de los que se quedan estancados.", note:"Contraste de resultados. Activa el deseo de estar en el lado ganador." },
+  { id:74, cat:"identidad", text:"¿Eres de los que hacen [PRÁCTICA A] o de los que hacen [PRÁCTICA B]? La respuesta importa más de lo que crees.", note:"Binario de identidad. Genera respuestas en comentarios de forma natural." },
+  { id:75, cat:"identidad", text:"La mentalidad que nadie en [NICHO] te va a decir que necesitas porque ellos tampoco la tienen.", note:"Exclusividad de perspectiva. Alto valor percibido." },
+  { id:76, cat:"promesa", text:"En los próximos [TIEMPO] te voy a mostrar cómo [RESULTADO ESPECÍFICO] sin [SACRIFICIO TEMIDO].", note:"Fórmula clásica: resultado + eliminación del obstáculo. Muy directa y efectiva." },
+  { id:77, cat:"promesa", text:"Esto que te voy a enseñar hoy te va a ahorrar [RECURSO] que nunca recuperas.", note:"Ahorro de recurso escaso (tiempo, dinero, energía). Muy motivador." },
+  { id:78, cat:"promesa", text:"Al final de esto vas a saber exactamente qué hacer con [PROBLEMA DEL NICHO].", note:"Promesa de claridad. Muy poderosa cuando el nicho vive en la confusión." },
+  { id:79, cat:"promesa", text:"Un solo cambio en cómo haces [COSA] puede [RESULTADO TRANSFORMADOR]. Te lo muestro.", note:"Mínimo esfuerzo, máximo resultado. Psicológicamente irresistible." },
+  { id:80, cat:"promesa", text:"Esta es la versión simplificada de [TEMA COMPLEJO] que nadie había hecho todavía.", note:"Accesibilidad + novedad. Excelente para nichos técnicos o saturados." },
+  { id:81, cat:"promesa", text:"Voy a hacer en [TIEMPO] lo que normalmente toma [TIEMPO LARGO]. Te grabo todo el proceso.", note:"Transparencia + velocidad. Muy atractivo para nichos de productividad y negocios." },
+  { id:82, cat:"promesa", text:"Después de ver esto nunca vas a ver [TEMA] de la misma manera.", note:"Promesa de transformación de perspectiva. Audaz y memorable." },
+  { id:83, cat:"promesa", text:"El método que uso yo cada vez que [SITUACIÓN DEL NICHO]. Paso a paso y sin atajos falsos.", note:"Honestidad del proceso. 'Sin atajos falsos' genera confianza instantánea." },
+  { id:84, cat:"promesa", text:"Lo que te voy a enseñar hoy no está en ningún curso de pago. Lo aprendí haciéndolo.", note:"Experiencia real vs. educación formal. Muy valorado por audiencias cansadas de teoría." },
+  { id:85, cat:"promesa", text:"Guarda este video porque lo vas a necesitar cuando llegues a [MOMENTO ESPECÍFICO DEL NICHO].", note:"Crea urgencia de guardar/compartir antes de terminar de ver." },
+  { id:86, cat:"promesa", text:"Hoy te voy a dar la hoja de ruta que yo hubiera querido tener cuando empecé en [ÁREA].", note:"Regalo de experiencia. Muy poderoso en nichos de inicio/aprendizaje." },
+  { id:87, cat:"promesa", text:"Si aplicas solo esto de todo lo que te digo hoy, ya habrás avanzado más que el [%] de la gente en [NICHO].", note:"Baja la barrera de acción y sube el valor percibido." },
+  { id:88, cat:"promesa", text:"Te voy a mostrar lo que nadie te muestra porque creen que no estás listo. Yo creo que sí.", note:"Empoderamiento + exclusividad. Muy motivador emocionalmente." },
+  { id:89, cat:"error", text:"El error número uno en [NICHO] que cometen incluso los que llevan años.", note:"Valida que el error es universal y no solo de principiantes. Retiene a todo tipo de espectador." },
+  { id:90, cat:"error", text:"Esto que haces creyendo que ayuda en [ÁREA] en realidad está haciendo lo opuesto.", note:"Contraproducencia oculta. Muy impactante cuando el argumento es sólido." },
+  { id:91, cat:"error", text:"Yo hice esto mal durante [TIEMPO] antes de entender por qué no funcionaba.", note:"Vulnerabilidad + lección. El espectador quiere saber qué descubriste." },
+  { id:92, cat:"error", text:"La razón por la que [OBJETIVO COMÚN] no te funciona no es falta de esfuerzo. Es esto.", note:"Libera al espectador de culpa y redirige la causa. Muy aliviante y adictivo." },
+  { id:93, cat:"error", text:"Creía que esto era lo correcto en [ÁREA] hasta que vi los resultados reales.", note:"Datos que cambian creencias. Honestidad que genera credibilidad." },
+  { id:94, cat:"error", text:"Hay una fase en [NICHO] donde todos cometemos el mismo error sin darnos cuenta. Estás en ella.", note:"Universalidad del error + identificación del momento. Muy poderoso." },
+  { id:95, cat:"error", text:"Si [RESULTADO DESEADO] no está pasando, hay [NÚMERO] razones. Te las digo todas.", note:"Lista implícita con número específico. Crea expectativa estructurada." },
+  { id:96, cat:"error", text:"Esto que parece una buena práctica en [NICHO] tiene una trampa que casi nadie ve.", note:"Trampa oculta en lo familiar. Genera alerta sin generar miedo irracional." },
+  { id:97, cat:"error", text:"La confusión más común sobre [CONCEPTO DEL NICHO] explicada de una vez por todas.", note:"Promesa de claridad definitiva. Muy atractivo en nichos técnicos." },
+  { id:98, cat:"error", text:"¿Por qué funciona para ellos y para mí no? La respuesta real está en [FACTOR IGNORADO].", note:"Valida la frustración comparativa y da una explicación nueva." },
+  { id:99, cat:"error", text:"Esto lo hice mal 7 veces antes de entender qué fallaba. No cometas mi error.", note:"Número específico de fallos = credibilidad real. Muy humano." },
+  { id:100, cat:"error", text:"El consejo más dado en [NICHO] es también el más peligroso si no sabes esto.", note:"Invierte una autoridad establecida. Muy intrigante y generador de debate." },
+];
+
+const tagLabels = {
+  curiosidad:"Curiosidad", controversia:"Controversia", historia:"Historia",
+  dato:"Dato Shock", miedo:"Urgencia", identidad:"Identidad",
+  promesa:"Promesa", error:"Error Común"
+};
+
+let currentCat = "all";
+let currentSearch = "";
+
+function render() {
+  const grid = document.getElementById("grid");
+  const noResults = document.getElementById("noResults");
+  const count = document.getElementById("countDisplay");
+
+  const filtered = hooks.filter(h => {
+    const cm = currentCat === "all" || h.cat === currentCat;
+    const sm = !currentSearch || h.text.toLowerCase().includes(currentSearch) || h.note.toLowerCase().includes(currentSearch);
+    return cm && sm;
+  });
+
+  count.textContent = filtered.length;
+  if (!filtered.length) {
+    grid.innerHTML = "";
+    noResults.style.display = "block";
+    return;
+  }
+  noResults.style.display = "none";
+
+  grid.innerHTML = filtered.map((h, i) => `
+    <div class="hook-card" id="card-${h.id}" style="animation-delay:${(i % 12) * 0.04}s">
+      <div class="card-top">
+        <span class="hook-num">${String(h.id).padStart(3,"0")}</span>
+        <span class="hook-tag tag-${h.cat}">${tagLabels[h.cat]}</span>
+      </div>
+      <div class="hook-text">"${h.text}"</div>
+      <div class="hook-note">${h.note}</div>
+      <div class="card-footer">
+        <button class="copy-btn" onclick="copyHook(${h.id}, this)">Copiar</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function copyHook(id, btn) {
+  const h = hooks.find(x => x.id === id);
+  if (!h) return;
+  navigator.clipboard.writeText(h.text).then(() => {
+    const card = document.getElementById(`card-${id}`);
+    btn.textContent = "✓ Copiado";
+    btn.classList.add("done");
+    card.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = "Copiar";
+      btn.classList.remove("done");
+      card.classList.remove("copied");
+    }, 2000);
+  });
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCat = btn.dataset.cat;
+    render();
+  });
+});
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  currentSearch = e.target.value.toLowerCase().trim();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
